@@ -1,4 +1,5 @@
 var mysql = require("mysql");
+var Table = require('cli-table3');
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -16,47 +17,62 @@ var connection = mysql.createConnection({
 
 connection.connect(function(err) {
   if (err) throw err;
-  start();
+
 });
 
-function start(){
-  connection.query("SELECT * FROM products", function(err, res) {
-    if (err) throw err;
-    console.log("Display Inventory: " + "\n" + "--------------");
-    for(var i = 0; i < res.length; i ++){
-    console.log("Item ID: " + res[i].id + "\n" + "Product Name: " + res[i].product_name + "\n" + "Department Name: " + res[i].department_name + "\n" + "Price: " + res[i].price + "\n" + "Stock Quantity: " + res[i].stock_quantity + "\n---------------------" )
-    }
-})
+function displayProducts(){
+
+    connection.query("SELECT * FROM products", function(err, res) {
+      if (err) throw err;
+      console.log("Display Inventory: " + "\n" + "--------------") 
+
+var table = new Table({
+      head: ['Item ID', 'Product Name', 'Department Name', 'Price', 'Stock Quantity']
+    , colWidths: [10, 20, 20, 10, 20], 
+    colAligns: ["center", "left", "left", "center", "center"], 
+    style: {
+      head: ["pink"], 
+      compact: true
 }
+});
+for(var i = 0; i < res.length; i++){
+  table.push ([res[i].id, res[i].product_name, res[i].department_name, res[i].price, res[i].stock_quantity]);
+}
+console.log(table.toString());
+console.log("");
+});
+};
+displayProducts();
+
+
+
+
 // function questions() {
 //     inquirer
 //       .prompt([
 //         {
 //         name: "productID",
-//         type: "list",
+//         type: "input",
 //         message: "What is the product ID",
 //       },
 //       {
-//         name: "productID",
+//         name: "stockQuant",
+//         type: "input",
+//         message: "How many units would you like to buy?",
+//       },{
+//         name: "question",
 //         type: "list",
-//         message: "What is the product ID",
+//         choices: ["YES", "NO"],
+//         message: "Would you like to buy this item?",
 //       },
-//       {
-//         name: "productID",
-//         type: "list",
-//         message: "What is the product ID",
-//         },
+     
 //       ])
-//       .then(function(answer) {
-//         // based on their answer, either call the bid or the post functions
-//         if (answer.postOrBid === "POST") {
-//           postAuction();
-//         }
-//         else if(answer.postOrBid === "BID") {
-//           bidAuction();
-//         } else{
-//           connection.end();
-//         }
-//       });
-//   }
+//     .then(function(answers){
+//       var inputID = answers.productID;
+//       var inputQuant= answers.stockQuant;
+//       var inputBuy = answers.question;
+//       purchaseOrder(inputID, inputQuant, question);
+//     });
+//    };
 
+       
