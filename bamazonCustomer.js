@@ -1,5 +1,6 @@
 var mysql = require("mysql");
 var Table = require('cli-table3');
+var inquirer = require('inquirer');
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -39,40 +40,59 @@ for(var i = 0; i < res.length; i++){
   table.push ([res[i].id, res[i].product_name, res[i].department_name, res[i].price, res[i].stock_quantity]);
 }
 console.log(table.toString());
-console.log("");
+shopping(); 
 });
 };
-displayProducts();
 
 
 
+var shopping = function () {
+  inquirer
+  .prompt({
+        
+        name: "productID",
+        type: "input",
+        message: "What is the product ID?",
+  })
+      .then(function(answer1){
+        var selection = answer1.productID;
+        connection.query("SELECT * FROM products WHERE id= ? ", selection, function(err, res){
+          if (err) throw err;
+          if(res.length === 0){
+            console.log("That product ID does not exist")
+        
+          shopping();
+          } else {
+            inquirer.prompt({
+              name: "quantity",
+              type: "input",
+              message: "How many would you like to buy?",
+            }).then(function(answer2){
+              var quantity = answer2.quantity;
+              if (quantity > res[0].stock_quantity){
+                console.log("We are sorry we only have " + res[0].stock_quantity)
+            shopping();    
+              }else{
+                console.log(res[0].product_name + " purchased");
+                console.log(quantity + " items at " + res[0].price + " per item")
+                
+                var adjusted = res[0].stock_quantity - quantity;
+                connection.query("UPDATE products SET stock_quantity = " + adjusted + " WHERE id = " + res[0].id, function(err, resUpdate) {
+                    if (err) throw err;
+                   
+                    console.log("Your Order has been processed.");
+                    console.log("Thank you for shopping with us!");
+                   
+                    connection.end();
+                })
+              }
+            })
+          }
+        });
+      
+      });
 
-// function questions() {
-//     inquirer
-//       .prompt([
-//         {
-//         name: "productID",
-//         type: "input",
-//         message: "What is the product ID",
-//       },
-//       {
-//         name: "stockQuant",
-//         type: "input",
-//         message: "How many units would you like to buy?",
-//       },{
-//         name: "question",
-//         type: "list",
-//         choices: ["YES", "NO"],
-//         message: "Would you like to buy this item?",
-//       },
-     
-//       ])
-//     .then(function(answers){
-//       var inputID = answers.productID;
-//       var inputQuant= answers.stockQuant;
-//       var inputBuy = answers.question;
-//       purchaseOrder(inputID, inputQuant, question);
-//     });
-//    };
+    
+    };
+    displayProducts(); 
 
-       
