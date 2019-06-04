@@ -93,3 +93,18 @@ function viewLow(){
         promptManager(); 
     });
 };
+
+function addInventory(){
+    inquirer.prompt({
+        type: 'input',
+        name: 'itemID',
+        message: 'Please enter an item ID',
+       validate:  function(){
+           if(!isNaN(idk)){
+               return true;
+           }
+           console.log("Please enter a valid ID")
+           return fale;
+       }
+    })
+};
