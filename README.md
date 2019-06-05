@@ -1,6 +1,6 @@
 # BAMAZON
 
-## What is BAmazon?
+## What is BAMAZON?
 Bamazon is an app that uses MySQL and Node to showcase an inventory of products available. As a customer, the user uses the command line to view the products available, the quantity available, their price, and the department they belong to. The customer has the option to purchase the item. The database will then track the quantity left in stock. 
 
 As a manager, the user has the ability to view the products for sale and view the items that are low in inventory. The user then has the option to add to the inventory and even add a new product. 
