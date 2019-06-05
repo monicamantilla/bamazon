@@ -73,7 +73,7 @@ function display(){
 
 function viewLow(){
 
-  connection.query("SELECT * FROM products WHERE stock_quantity <= 50", function(err, res) {
+  connection.query("SELECT * FROM products WHERE stock_quantity <= 5", function(err, res) {
 
         if (err) throw err;
 
@@ -191,7 +191,7 @@ function  addNewProduct() {
             stock_quantity: answer2.inventoryQuant,
         })
         // Message to confirm product has been added 
-        console.log(answer2.newProduct + "has been added to Bamazon.");
+        console.log(answer2.newProduct + " has been added to the inventory.");
         display();
     });
 };
