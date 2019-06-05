@@ -95,16 +95,108 @@ function viewLow(){
 };
 
 function addInventory(){
-    inquirer.prompt({
+    inquirer.prompt([
+        {
         type: 'input',
-        name: 'itemID',
+        name: 'itemId',
         message: 'Please enter an item ID',
-       validate:  function(){
-           if(!isNaN(idk)){
+        validate:  function(inputId){
+           if(!isNaN(inputId)){
                return true;
            }
            console.log("Please enter a valid ID")
            return fale;
        }
-    })
+    },{
+        type: 'input',
+        name: 'quantity',
+        message: 'How many items would you like to add to inventory?',
+        validate:  function(quant){
+            if(!isNaN(quant)){
+                return true;
+            }
+            console.log("Please enter a valid quantity")
+            return fale;
+    }
+}
+    ]).then(function(answers){
+        connection.query("SELECT * FROM products", function (err, res) {
+            if (err) throw err;
+            //outside of range error
+            if((parseInt(answers.itemId) > res.length) || (parseInt(answers.itemId) <= 0)) {
+                console.log("Please enter a valid ID");
+            }
+            var selectItem = " ";
+            for(let i = 0; i < res.length; i++){
+                if(res[i].id === parseInt (answers.itemId)){
+                    selectItem = res[i];
+                }
+            }
+            connection.query("UPDATE products SET ? WHERE ?", [{
+                stock_quantity: selectItem.stock_quantity += parseInt(answers.quantity)
+            },{
+                id: selectItem.id
+            }
+        ], function(error) {
+            if (error) throw error;
+            console.log("You successfully added " + answers.quantity + " " + selectItem.product_name + " to the inventory");
+            display()
+        }
+        );
+        });
+    });
 };
+
+function  addNewProduct() {
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "newProduct",
+            message: "What is the name of the product you would like to add?"
+        }, {
+            type: "list",
+            name: "department",
+            message: "Which department does this product belong to",
+            choices: ["electronics", "clothing", "accesories","makeup", "beauty", "food"]
+        }, {
+            type: "input",
+            name: "cost",
+            message: "How much does this product cost?",
+            validate: function(cost) {
+                if(!isNaN(cost)) {
+                    return true;
+                }
+                console.log("Please enter a valid number.");
+                return false;
+            }
+        }, {
+            type: "input",
+            name: "inventoryQuant",
+            message: "How many products are currently in inventory?",
+            validate: function(inventoryQuant) {
+                if (!isNaN(inventoryQuant)) {
+                    return true;
+                }
+                console.log("Please enter a valid quantity");
+                return false;
+            }
+        }
+    ]).then(function(answer2) {
+        //Insert new products into table
+        var queryString = "INSERT INTO products SET ?";
+        connection.query(queryString, {
+            product_name: answer2.newProduct,
+            department_name: answer2.department,
+            price: answer2.cost,
+            stock_quantity: answer2.inventoryQuant,
+        })
+        // Message to confirm product has been added 
+        console.log(answer2.newProduct + "has been added to Bamazon.");
+        display();
+    });
+};
+// Function to quit the program
+function quit() {
+    connection.end();
+};
+
